@@ -1,10 +1,5 @@
 # coding: utf-8
-from dados.maps import get_city_geojson, get_city_info
-from dados.geotiff import convert_from_shapefile
-from dados import dbdata
-from dados import models as M
-from dbf.models import DBF
-
+from django.apps import apps
 from django.utils.translation import gettext
 from django.shortcuts import redirect
 from django.views.generic.base import TemplateView, View
@@ -13,8 +8,13 @@ from django.conf import settings
 from django.http import HttpResponse
 from time import mktime
 from collections import defaultdict, OrderedDict
+# local
+from . import dbdata, models as M
+from .dbdata import Forecast, MRJ_GEOCODE, CID10
+from .episem import episem
+from .maps import get_city_info
+from .geotiff import convert_from_shapefile
 
-import io
 import random
 import fiona
 import json
@@ -23,6 +23,9 @@ import datetime
 import numpy as np
 import locale
 import geojson
+
+
+DBF = apps.get_model('dbf', 'DBF')
 
 locale.setlocale(locale.LC_TIME, locale="pt_BR.UTF-8")
 
@@ -134,6 +137,15 @@ def get_alert(disease='dengue'):
     return alert, current, case_series, last_year, obs_case_series, min_max_est
 
 
+def get_municipio(request):
+    q = request.GET['q']
+    muns = dbdata.get_city(q)
+    data = json.dumps([
+        {'geocodigo': g, 'nome': n, 'uf': u} for g, n, u in muns
+    ])
+    return HttpResponse(data, content_type='application/json')
+
+
 def load_series():
     """
     Monta as séries para visualização no site
@@ -167,6 +179,26 @@ def load_series():
             for c in G.get_group(ap).cor
         ]
     return series
+
+
+class _GetMethod:
+    """
+
+    """
+    def _get(self, param, default=None):
+        """
+
+        :param param:
+        :param default:
+        :return:
+        """
+        result = (
+            self.request.GET[param]
+            if param in self.request.GET else
+            default
+        )
+
+        return result if result else default
 
 
 class AlertaMainView(TemplateView):
@@ -271,23 +303,14 @@ class AlertaMainView(TemplateView):
         return context
 
 
-def get_municipio(request):
-    q = request.GET['q']
-    muns = dbdata.get_city(q)
-    data = json.dumps([
-        {'geocodigo': g, 'nome': n, 'uf': u} for g, n, u in muns
-    ])
-    return HttpResponse(data, content_type='application/json')
-
-
-class AlertaPageView(TemplateView):
+class AlertaMRJPageView(TemplateView, _GetMethod):
     """
     Rio de Janeiro Alert View
     """
-    template_name = 'alerta.html'
+    template_name = 'alerta_mrj.html'
 
     def get_context_data(self, **kwargs):
-        context = super(AlertaPageView, self).get_context_data(**kwargs)
+        context = super(AlertaMRJPageView, self).get_context_data(**kwargs)
 
         disease_code = context['disease']
 
@@ -310,6 +333,17 @@ class AlertaPageView(TemplateView):
             5.3: 'AP 5.3: Santa Cruz e adjacências'
         }
 
+        # forecast epiweek reference
+        forecast_date_min, forecast_date_max = Forecast.get_min_max_date(
+            geocode=MRJ_GEOCODE, cid10=CID10[disease_code]
+        )
+
+        forecast_date_ref = self._get(
+            'ref', forecast_date_max
+        )
+
+        epiweek = episem(forecast_date_ref).replace('W', '')
+
         alert, current, case_series, last_year, observed_cases, min_max_est = \
             get_alert(disease_code)
 
@@ -325,7 +359,6 @@ class AlertaPageView(TemplateView):
             }
             semana = str(current.se.iat[-1])[-2:]
             segunda = current.data.iat[-1]
-            city_info = get_city_info("3304557")
             # estimated cases
             total_series = sum(
                 np.array(list(case_series.values())), np.zeros(12, int)
@@ -339,12 +372,14 @@ class AlertaPageView(TemplateView):
             alerta = {}
             semana = 0
             segunda = datetime.datetime.now() - datetime.timedelta(7)
-            city_info = get_city_info("3304557")
             total_series = [0]
             total_observed_series = [0]
 
+        _MRJ_GEOCODE = str(MRJ_GEOCODE)
+        city_info = get_city_info(_MRJ_GEOCODE)
+
         context.update({
-            'geocodigo': "3304557",
+            'geocodigo': _MRJ_GEOCODE,
             'nome': "Rio de Janeiro",
             'populacao': city_info['populacao'],
             'incidencia': (
@@ -371,27 +406,34 @@ class AlertaPageView(TemplateView):
             'total_observed_series': ', '.join(
                 map(str, total_observed_series)),
             'disease_label': disease_label,
-            'disease_code': disease_code
+            'disease_code': disease_code,
+            'forecast_date_ref': forecast_date_ref,
+            'forecast_date_min': forecast_date_min,
+            'forecast_date_max': forecast_date_max,
+            'epiweek': epiweek
         })
         return context
 
 
-class AlertaPageViewMunicipio(TemplateView):
+class AlertaMunicipioPageView(TemplateView, _GetMethod):
     template_name = 'alerta_municipio.html'
 
     def dispatch(self, request, *args, **kwargs):
-        super(AlertaPageViewMunicipio, self) \
-            .get_context_data(**kwargs)
+        super(
+            AlertaMunicipioPageView, self
+        ).get_context_data(**kwargs)
+
         municipio_gc = kwargs['geocodigo']
 
-        if int(municipio_gc) == 3304557:  # Rio de Janeiro
+        if int(municipio_gc) == MRJ_GEOCODE:  # Rio de Janeiro
             return redirect('mrj', disease='dengue', permanent=True)
 
-        return super(AlertaPageViewMunicipio, self) \
-            .dispatch(request, *args, **kwargs)
+        return super(
+            AlertaMunicipioPageView, self
+        ).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(AlertaPageViewMunicipio, self) \
+        context = super(AlertaMunicipioPageView, self) \
             .get_context_data(**kwargs)
 
         disease_code = context['disease']
@@ -402,18 +444,29 @@ class AlertaPageViewMunicipio(TemplateView):
             None
         )
 
-        municipio_gc = context['geocodigo']
+        geocode = context['geocodigo']
 
-        city_info = get_city_info(municipio_gc)
+        city_info = get_city_info(geocode)
+
+        # forecast epiweek reference
+        forecast_date_min, forecast_date_max = Forecast.get_min_max_date(
+            geocode=geocode, cid10=CID10[disease_code]
+        )
+
+        forecast_date_ref = self._get(
+            'ref', forecast_date_max
+        )
+
+        epiweek = episem(forecast_date_ref).replace('W', '')
 
         (
             alert, SE, case_series, last_year,
             observed_cases, min_max_est, dia, prt1
-        ) = dbdata.get_city_alert(municipio_gc, disease_code)
+        ) = dbdata.get_city_alert(geocode, disease_code)
 
         if alert is not None:
-            casos_ap = {municipio_gc: int(case_series[-1])}
-            bairros = {municipio_gc: city_info['nome']}
+            casos_ap = {geocode: int(case_series[-1])}
+            bairros = {geocode: city_info['nome']}
             total_series = case_series[-12:]
             total_observed_series = observed_cases[-12:]
         else:
@@ -429,13 +482,13 @@ class AlertaPageViewMunicipio(TemplateView):
                 case_series[-1] / city_info['populacao']
             ) * 100000,  # casos/100000
             'casos_por_ap': json.dumps(casos_ap),
-            'alerta': {municipio_gc: alert},
+            'alerta': {geocode: alert},
             'prt1': prt1 * 100,
             'novos_casos': case_series[-1],
             'bairros': bairros,
             'min_est': min_max_est[0],
             'max_est': min_max_est[1],
-            'series_casos': {municipio_gc: case_series[-12:]},
+            'series_casos': {geocode: case_series[-12:]},
             'SE': SE,
             'data1': dia.strftime("%d de %B de %Y"),
             # .strftime("%d de %B de %Y")
@@ -446,9 +499,13 @@ class AlertaPageViewMunicipio(TemplateView):
             'total_observed': total_observed_series[-1],
             'total_observed_series': ', '.join(
                 map(str, total_observed_series)),
-            'geocodigo': municipio_gc,
+            'geocodigo': geocode,
             'disease_label': disease_label,
-            'disease_code': disease_code
+            'disease_code': disease_code,
+            'forecast_date_ref': forecast_date_ref,
+            'forecast_date_min': forecast_date_min,
+            'forecast_date_max': forecast_date_max,
+            'epiweek': epiweek
         })
         return context
 
@@ -491,71 +548,6 @@ class DetailsPageView(TemplateView):
         return context
 
 
-class MapaDengueView(TemplateView):
-    template_name = 'mapadengue.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(MapaDengueView, self).get_context_data(**kwargs)
-        return context
-
-
-class MapaMosquitoView(TemplateView):
-    template_name = 'mapamosquito.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(MapaMosquitoView, self).get_context_data(**kwargs)
-        return context
-
-
-class HistoricoView(TemplateView):
-    template_name = 'historico.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(HistoricoView, self).get_context_data(**kwargs)
-        series = load_series()
-        aps = list(series.keys())
-        aps.sort()
-        context.update({
-            'APS': aps,
-            'xvalues': series['AP1']['dia'],
-            'dados': json.dumps(series)
-        })
-        return context
-
-
-class AboutPageView(TemplateView):
-    template_name = 'about.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(AboutPageView, self).get_context_data(**kwargs)
-        # messages.info(
-        #   self.request,
-        #   'O site do projeto Alerta Dengue está em construção.')
-        return context
-
-
-class ContactPageView(TemplateView):
-    template_name = 'contact.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ContactPageView, self).get_context_data(**kwargs)
-        # messages.info(
-        #   self.request,
-        #   'O site do projeto Alerta Dengue está em construção.')
-        return context
-
-
-class JoininPageView(TemplateView):
-    template_name = 'joinin.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(JoininPageView, self).get_context_data(**kwargs)
-        # messages.info(
-        #   self.request,
-        #   'O site do projeto Alerta Dengue está em construção.')
-        return context
-
-
 class SinanCasesView(View):
     def get(self, request, year, sample):
         sample = int(sample)
@@ -591,7 +583,6 @@ class SinanCasesView(View):
         cases = cases[:-1] + "]}"
         # json.loads(cases)
         return HttpResponse(cases, content_type="application/json")
-
 
 
 class AlertaStateView(TemplateView):
@@ -636,11 +627,11 @@ class AlertaStateView(TemplateView):
             context['state'] == 'RJ' and
             context['disease'] == 'chikungunya'
         ):
-            geo_id_rj = 3304557
+            geo_id_rj = MRJ_GEOCODE
             mun_dict = {geo_id_rj: 'Rio de Janeiro'}
             series_data_rj = dbdata.load_series(
                 geo_id_rj, 'chikungunya'
-            )['3304557']
+            )[str(MRJ_GEOCODE)]
             alerts = {str(geo_id_rj): series_data_rj['alerta'][-1]}
             is_just_rj = True
 
@@ -690,28 +681,13 @@ class AlertaStateView(TemplateView):
         return context
 
 
-class NotificationReducedCSV_View(View):
+class NotificationReducedCSV_View(View, _GetMethod):
     _state_name = {
         'RJ': 'Rio de Janeiro',
         'PR': 'Paraná',
         'ES': 'Espírito Santo'}
 
     request = None
-
-    def _get(self, param, default=None):
-        """
-
-        :param param:
-        :param default:
-        :return:
-        """
-        result = (
-            self.request.GET[param]
-            if param in self.request.GET else
-            default
-        )
-
-        return result if result else default
 
     def get(self, request):
         """
@@ -836,11 +812,3 @@ class GeoJsonView(View):
         )
 
         return response
-
-
-class PartnersPageView(TemplateView):
-    template_name = 'partners.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(PartnersPageView, self).get_context_data(**kwargs)
-        return context

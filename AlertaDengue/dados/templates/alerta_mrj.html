@@ -8,8 +8,11 @@
     {% leaflet_js %}
     {% leaflet_css %}
     {% leaflet_js plugins="ALL" %}
-    <meta property="og:image" content="http://info.dengue.mat.br/static/img/screenshot.png"/>
-    <meta property="og:image:secure_url" content="https://info.dengue.mat.br/static/img/screenshot.png"/>
+    <meta property="og:image"
+          content="http://info.dengue.mat.br/static/img/screenshot.png"/>
+    <meta property="og:image:secure_url"
+          content="https://info.dengue.mat.br/static/img/screenshot.png"/>
+
     <style>
         .leaflet-container {
             height: 80%;
@@ -55,7 +58,7 @@
     <script src="/static/js/QuadTree.js"></script>
     <script src='/static/exp_PontosUnidadesBasicasSaudeMRJ2014wgs84.js'></script>
     <script src="/static/js/Autolinker.min.js"></script>
-    <script src="/static/js/jquery.sparkline.min.js"></script>
+    <script src="/static/libs/jquery/jquery.sparkline.min.js"></script>
     <script src="/static/js/highstock.js"></script>
     <script src="/static/js/modules/exporting.js"></script>
     <style>
@@ -94,6 +97,24 @@
           <h3> {% blocktrans with incid=incidencia|floatformat %}<b>Incidência estimada:</b> {{ incid }}  por 100 mil habitantes. {% endblocktrans %}</h3>
 {#          <h3><b>Chance de alerta <span class="label label-warning">laranja</span> ou <span class="label label-danger">vermelho</span> na próxima semana:</b> {{ prt1|floatformat }}%</h3>#}
       </div>
+    </div>
+    <div>
+        <form id="form_forecast_date_ref" method="get">
+            <label for="ref">
+                {% blocktrans %}Data de referência da previsão{% endblocktrans %}
+            </label>
+            <input id="ref" name="ref" type="date"/>
+            <script>
+            $(document).ready(function(){
+                $('#ref').val('{{forecast_date_ref}}');
+                $('#ref').attr('min', '{{forecast_date_min}}');
+                $('#ref').attr('max', '{{forecast_date_max}}');
+                $('#ref').on('change', function() {
+                    form_forecast_date_ref.submit();
+                });
+            })
+            </script>
+        </form>
     </div>
     {% alerta_series %}
     {% leaflet_map "main" callback="main_map_init" %}
