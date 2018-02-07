@@ -245,6 +245,8 @@ class MeteorologicalRasterProcess:
                 raster_output_file_path=raster_output_file_path
             )
 
+            # TODO: save clima_satelite
+
             # increase resolution
             increase_resolution(
                 raster_file_path=raster_output_file_path,

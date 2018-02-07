@@ -155,6 +155,7 @@ DATABASE_ROUTERS = [
 ]
 DATABASE_APPS_MAPPING = {
     'dados': 'dados',
+    'gis': 'dados',
     'forecast': 'forecast',
     'dbf': 'default'
 }

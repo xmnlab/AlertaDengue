@@ -3,7 +3,7 @@ from datetime import datetime
 # local
 from .. import mapfile
 from ..settings import RASTER_METEROLOGICAL_DATA_RANGE
-from dados.dbdata import CID10, get_cities
+from dados.dbdata import CID10
 
 import numpy as np
 import os
