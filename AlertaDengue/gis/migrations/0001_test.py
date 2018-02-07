@@ -22,17 +22,19 @@ def create_dengue_global():
               CONSTRAINT "Municipio_pk" PRIMARY KEY (geocodigo)
             );
 
-            CREATE TABLE IF NOT EXISTS "Dengue_global"."CID10"
-            (
-              nome character varying(512) NOT NULL,
-              codigo character varying(5) NOT NULL,
-              CONSTRAINT "CID10_pk" PRIMARY KEY (codigo)
+            INSERT INTO "Dengue_global"."Municpio" (
+                geocodigo, nome, geojson, populacao, uf
+            ) VALUES(
+                3304557, 'Rio de Janeiro', '', 6498837, 'Rio de Janeiro'
             );
         '''
+
+        with open('../../../sql/create_table_clima_satelite.sql') as f:
+            sql += f.read()
     else:
         sql = 'SELECT 1;'
 
-    return migrations.RunSQL(sql, hints={'target_db': 'forecast'})
+    return migrations.RunSQL(sql, hints={'target_db': 'gis'})
 
 
 class Migration(migrations.Migration):

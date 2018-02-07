@@ -45,6 +45,7 @@ class SatelliteClimate(models.Model):
         app_label = 'gis'
         verbose_name_plural = "satellite_climates"
         unique_together = (('city', 'images_date'),)
+        managed = False
 
     def __str__(self):
         return '%s - %s' % (self.city, self.images_date)
