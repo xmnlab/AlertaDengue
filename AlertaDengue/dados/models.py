@@ -22,6 +22,7 @@ class City(models.Model):
         db_table = 'Dengue_global\".\"Municipio'
         app_label = 'dados'
         verbose_name_plural = "cities"
+        managed = False
 
     def __str__(self):
         return self.name
@@ -47,6 +48,7 @@ class CID10(models.Model):
         db_table = 'Dengue_global\".\"CID10'
         app_label = 'dados'
         verbose_name_plural = "cities"
+        managed = False
 
     def __str__(self):
         return self.name

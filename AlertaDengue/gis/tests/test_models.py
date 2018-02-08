@@ -1,5 +1,5 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.apps import apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from datetime import datetime, timedelta
 
@@ -9,8 +9,10 @@ import numpy as np
 import unittest
 
 from .. import settings
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis.settings")
 django.setup()
+
 from ..models import SatelliteClimate
 from dados.dbdata import db_engine
 
@@ -24,7 +26,7 @@ class TestSatelliteClimate(TestCase):
         with db_engine.connect() as conn:
             path = os.path.dirname(settings.BASE_DIR)
             path = os.path.join(
-                path, 'sql', 'create_table_clima_satelite.sql'
+                path, 'sql', 'create_table_satellite_climate.sql'
             )
 
             with open(path) as f:
