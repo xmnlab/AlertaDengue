@@ -1,5 +1,4 @@
 from django.apps import apps
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from datetime import datetime, timedelta
 
@@ -46,12 +45,14 @@ class TestSatelliteClimate(TestCase):
         relative_humidity = np.random.random()
         specific_humidity = np.random.random()
 
-        try:
-            while True:
-                SatelliteClimate.objects.get(city=city, images_date=dt)
-                dt = dt + timedelta(days=1)
-        except ObjectDoesNotExist:
-            pass
+        v = True
+
+        while v:
+            v = SatelliteClimate.objects.filter(
+                city=city, images_date=dt
+            ).exists()
+
+            dt = dt + timedelta(days=1)
 
         SatelliteClimate.objects.create(
             city=city,  # MRJ

@@ -1,3 +1,4 @@
+from django.apps import apps
 from copy import copy
 from datetime import datetime
 from glob import glob
@@ -7,7 +8,9 @@ from rasterio.transform import from_origin
 
 #local
 from .settings import *
+from .models import SatelliteClimate
 from dados.dbdata import get_cities
+from dados.episem import episem
 
 import fiona
 import geopy.distance
@@ -17,6 +20,8 @@ import numpy as np
 import rasterio
 import rasterio.mask
 import traceback as tb
+
+City = apps.get_model('dados', 'City')
 
 
 def convert_from_shapefile(shapefile, rgb_color):
@@ -245,7 +250,44 @@ class MeteorologicalRasterProcess:
                 raster_output_file_path=raster_output_file_path
             )
 
-            # TODO: save clima_satelite
+            # save statistical data
+            city = City.objects.get(geocode=geocode)
+            sat_cli_key = {
+                'city': city,
+                'images_date': self.raster_date,
+            }
+            field_name = ''
+            field_value = None
+
+            with rasterio.open(raster_output_file_path) as src:
+                if self.raster_class.startswith('lst_day'):
+                    field_name = 'temperature_max'
+                elif self.raster_class.startswith('lst_night'):
+                    field_name = 'temperature_min'
+                elif self.raster_class.startswith('ndvi'):
+                    field_name = 'ndvi'
+                elif self.raster_class.startswith('specific'):
+                    field_name = 'specific_humidity'
+                elif self.raster_class.startswith('relative'):
+                    field_name = 'relative_humidity'
+                elif self.raster_class.startswith('precipitation'):
+                    field_name = 'precipitation'
+
+                field_value = np.nanmean(src.read())
+
+            if np.isnan(field_value):
+                field_value = None
+
+            # check if register exists
+            if SatelliteClimate.objects.filter(**sat_cli_key).exists():
+                sat_cli = SatelliteClimate.objects.get(**sat_cli_key)
+                setattr(sat_cli, field_name, field_value)
+            else:
+                sat_cli_fields = dict(sat_cli_key)
+                sat_cli_fields.update({field_name: field_value})
+                sat_cli = SatelliteClimate(**sat_cli_fields)
+
+            sat_cli.save()
 
             # increase resolution
             increase_resolution(
