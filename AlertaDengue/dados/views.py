@@ -35,7 +35,8 @@ from .models import City, RegionalHealth
 from .charts import (
     ReportCityCharts,
     ReportStateCharts,
-    HomeCharts
+    HomeCharts,
+    StateCharts,
 )
 from gis.geotiff import convert_from_shapefile
 
@@ -67,7 +68,7 @@ def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(
-        int(value[i: i + lv // 3], 16) for i in range(0, lv, lv // 3)
+        int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)
     )
 
 
@@ -881,6 +882,7 @@ class AlertaStateView(TemplateView):
                 'case_series': cases_series_last_12,
                 'disease_label': context['disease'].title(),
                 'last_update': last_update,
+                'alerta_chart_uf': StateCharts.create_alerta_chart_uf(),
             }
         )
         return context

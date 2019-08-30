@@ -618,3 +618,59 @@ class HomeCharts:
     @classmethod
     def create_zika_chart(cls, case_series):
         return cls._create_chart(case_series, 'zika')
+
+
+class StateCharts:
+    @classmethod
+    def create_alerta_chart_uf(cls):
+        # Load data
+
+        # Create figure
+        fig = go.Figure()
+        ks_alert = [
+            'alerta verde',
+            'alerta amarelo',
+            'alerta laranja',
+            'alerta vermelho',
+        ]
+
+        colors = [
+            'rgb(0,255,0)',
+            'rgb(255,255,0)',
+            'rgb(255,150,0)',
+            'rgb(255,0,0)',
+        ]
+
+        for d, k, c in zip(ks_alert, colors):
+            fig.add_trace(
+                go.Scatter(
+                    x=[1, 2, 3, 4, 6],
+                    y=[18, 24, 36, 40, 60],
+                    name=d,
+                    marker={'color': c},
+                )
+            )
+        # Add range slider
+        fig.update_layout(
+            yaxis=dict(title='Casos'),
+            xaxis=go.layout.XAxis(
+                title='Semana',
+                rangeselector=dict(buttons=list([dict(step="all")])),
+                rangeslider=dict(visible=True),
+                type="date",
+            ),
+        )
+        fig.update_layout(
+            title='Casos por semanas epidemiologicas',
+            showlegend=True,
+            legend=go.layout.Legend(
+                traceorder="normal",
+                font=dict(family="sans-serif", size=12, color="black"),
+                bgcolor='rgba(0,0,0,0)',
+                bordercolor="White",
+                borderwidth=0,
+            ),
+        )
+        fig.update_layout(legend=dict(orientation="h", x=0, y=-0.92))
+
+        return fig.to_html()
