@@ -24,6 +24,7 @@ from .views import (
     PartnersPageView,
     DataPublicServicesPageView,
 )
+from django.conf.urls import include
 
 
 def redirect_alerta_dengue(request, state):
@@ -119,5 +120,8 @@ urlpatterns = [
         r'^report/{}/{}$'.format(__state_extra, __year_week),
         ReportStateView.as_view(),
         name='report_state',
+    ),
+    url(
+        r'^django_plotly_dash/', include('django_plotly_dash.urls')
     ),
 ]

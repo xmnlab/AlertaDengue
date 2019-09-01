@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'dbf.apps.DbfConfig',
     'api',
     'manager.router',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 )
 
 MIDDLEWARE_CLASSES = (
