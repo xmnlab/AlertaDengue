@@ -21,4 +21,5 @@ urlpatterns = [
     url_admin,
     url(r'^dbf/', include('dbf.urls')),
     url(r'^api/', include('api.urls')),
+    url('^django_plotly_dash/', include('django_plotly_dash.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

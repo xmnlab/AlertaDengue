@@ -37,6 +37,10 @@ from .charts import (
     ReportStateCharts,
     HomeCharts,
     StateCharts,
+    # GenderChart,
+    # AgeChart,
+    # DateChart,
+    DashCharts,
 )
 from gis.geotiff import convert_from_shapefile
 
@@ -68,7 +72,7 @@ def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(
-        int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)
+        int(value[i: i + lv // 3], 16) for i in range(0, lv, lv // 3)
     )
 
 
@@ -883,6 +887,10 @@ class AlertaStateView(TemplateView):
                 'disease_label': context['disease'].title(),
                 'last_update': last_update,
                 'alerta_chart_uf': StateCharts.create_alerta_chart_uf(),
+                # 'gender_chart_uf': GenderChart.create_gender_chart_uf(),
+                # 'age_chart_uf': AgeChart.create_age_chart_uf(),
+                # 'date_chart_uf': DateChart.create_date_chart_uf(),
+                'dash_chart_uf': DashCharts.create_dash_chart_uf(),
             }
         )
         return context
