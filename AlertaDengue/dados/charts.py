@@ -629,28 +629,27 @@ class HomeCharts:
 class DashCharts:
     @classmethod
     def create_dash_chart_uf(cls):
-        # Load data
 
-        app = DjangoDash('dash_app_UF')
+        # Load data https://info.dengue.mat.br/...
+        df_gender = pd.read_csv(
+         "api/notif_reduced?chart_type=age_gender&diseases=Dengue&state_abv=CE"
+        )
+        df_diseases = pd.read_csv(
+         'api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE'
+        )
 
         all_options = {
             'Desease': ['Chikungunya', 'Dengue', 'Zika'],
             'Gênero': [u'Homens', 'Mulheres'],
         }
 
-        city_data = {
-            'Dengue': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [2, 13, 43]},
-            'Chikungunya': {
-                'x': [2019, 2018, 2017, 2016, 2015],
-                'y': [1, 15, 53],
-            },
-            'Zika': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [2, 33, 36]},
-            'Homens': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [4, 7, 43]},
-            'Mulheres': {
-                'x': [2019, 2018, 2017, 2016, 2015],
-                'y': [1, 13, 23],
-            },
+        data_gender = {
+            'Homens': {'x': df_diseases.category, 'y': df_gender.Homem},
+            'Mulheres': {'x': df_diseases.category, 'y': df_gender.Mulher},
         }
+
+        # Start App
+        app = DjangoDash('dash_app_UF')
 
         app.layout = html.Div(
             html.Div(
@@ -720,8 +719,8 @@ class DashCharts:
             for city in selector:
                 data.append(
                     {
-                        'x': city_data[city]['x'],
-                        'y': city_data[city]['y'],
+                        'x': data_gender[city]['x'],
+                        'y': data_gender[city]['y'],
                         'type': 'bar',
                         'name': city,
                     }
