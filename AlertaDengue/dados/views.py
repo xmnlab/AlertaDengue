@@ -32,16 +32,7 @@ from .dbdata import (
 from .episem import episem, episem2date
 from .maps import get_city_info
 from .models import City, RegionalHealth
-from .charts import (
-    ReportCityCharts,
-    ReportStateCharts,
-    HomeCharts,
-    StateCharts,
-    # GenderChart,
-    # AgeChart,
-    # DateChart,
-    DashCharts,
-)
+from .charts import ReportCityCharts, ReportStateCharts, HomeCharts, DashCharts
 from gis.geotiff import convert_from_shapefile
 
 DBF = apps.get_model('dbf', 'DBF')
@@ -886,10 +877,6 @@ class AlertaStateView(TemplateView):
                 'case_series': cases_series_last_12,
                 'disease_label': context['disease'].title(),
                 'last_update': last_update,
-                'alerta_chart_uf': StateCharts.create_alerta_chart_uf(),
-                # 'gender_chart_uf': GenderChart.create_gender_chart_uf(),
-                # 'age_chart_uf': AgeChart.create_age_chart_uf(),
-                # 'date_chart_uf': DateChart.create_date_chart_uf(),
                 'dash_chart_uf': DashCharts.create_dash_chart_uf(),
             }
         )

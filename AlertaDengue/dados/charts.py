@@ -4,7 +4,6 @@ from time import mktime
 import plotly.graph_objs as go
 import pandas as pd
 from plotly.subplots import make_subplots
-import pickle
 
 # local
 from .dbdata import get_series_by_UF
@@ -627,75 +626,10 @@ class HomeCharts:
         return cls._create_chart(case_series, 'zika')
 
 
-class StateCharts:
-    @classmethod
-    def create_alerta_chart_uf(cls):
-        # Load data
-
-        # Create figure
-        fig = go.Figure()
-        ks_alert = [
-            'alerta verde',
-            'alerta amarelo',
-            'alerta laranja',
-            'alerta vermelho',
-        ]
-
-        colors = [
-            'rgb(0,255,0)',
-            'rgb(255,255,0)',
-            'rgb(255,150,0)',
-            'rgb(255,0,0)',
-        ]
-
-        for k, c in zip(ks_alert, colors):
-            fig.add_trace(
-                go.Scatter(
-                    x=[1, 2, 3, 4, 6],
-                    y=[18, 24, 36, 40, 60],
-                    # name=d,
-                    marker={'color': c},
-                )
-            )
-        # Add range slider
-        fig.update_layout(
-            yaxis=dict(title='Casos'),
-            xaxis=go.layout.XAxis(
-                title='Semana',
-                rangeselector=dict(buttons=list([dict(step="all")])),
-                rangeslider=dict(visible=True),
-                type="date",
-            ),
-        )
-        fig.update_layout(
-            title='Casos por semanas epidemiologicas',
-            showlegend=True,
-            legend=go.layout.Legend(
-                traceorder="normal",
-                font=dict(family="sans-serif", size=12, color="black"),
-                bgcolor='rgba(0,0,0,0)',
-                bordercolor="White",
-                borderwidth=0,
-            ),
-        )
-        fig.update_layout(legend=dict(orientation="h", x=0, y=-0.92))
-
-        return fig.to_html()
-
-
 class DashCharts:
     @classmethod
     def create_dash_chart_uf(cls):
         # Load data
-        with open(
-            '/home/work_lab/result.pkl',
-            'rb',
-        ) as handle:
-            result_dados = pickle.load(handle)
-
-        df = pd.DataFrame(result_dados, columns=['dados'])
-        df['dados'].dia
-        data_list = df['dados']
 
         app = DjangoDash('dash_app_UF')
 
@@ -705,58 +639,29 @@ class DashCharts:
         }
 
         city_data = {
-            'Dengue': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-            'Chikungunya': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-            'Zika': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-            'Homens': {'x': df['dados'].dia, 'y': [4, 7, 3]},
-            'Mulheres': {'x': df['dados'].dia, 'y': [2, 3, 3]},
+            'Dengue': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [2, 13, 43]},
+            'Chikungunya': {
+                'x': [2019, 2018, 2017, 2016, 2015],
+                'y': [1, 15, 53],
+            },
+            'Zika': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [2, 33, 36]},
+            'Homens': {'x': [2019, 2018, 2017, 2016, 2015], 'y': [4, 7, 43]},
+            'Mulheres': {
+                'x': [2019, 2018, 2017, 2016, 2015],
+                'y': [1, 13, 23],
+            },
         }
-
-        # city_data2 = {
-        #     'Dengue': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-        #   'Chikungunya': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-        #     'Zika': {'x': df['dados'].dia, 'y': data_list['casos_est']},
-        #     'Homens': {'x': df['dados'].dia, 'y': [4, 7, 3]},
-        #     'Mulheres': {'x': df['dados'].dia, 'y': [2, 3, 3]},
-        # }
 
         app.layout = html.Div(
             html.Div(
                 [
                     html.Div(
                         [
-                            html.H1(
-                                children='Alerta Dengue',
-                                className="nine columns",
-                            ),
-                            html.Img(
-                                src="logo_840X144.png",
-                                className='three columns',
-                                style={
-                                    'height': '14%',
-                                    'width': '14%',
-                                    'float': 'right',
-                                    'position': 'relative',
-                                    'margin-top': 20,
-                                    'margin-right': 20,
-                                },
-                            ),
-                            html.Div(
-                                children='''
-                                Epidemiological States.
-                                ''',
-                                className='nine columns',
-                            ),
-                        ],
-                        className="row",
-                    ),
-                    html.Div(
-                        [
                             html.Div(
                                 [
                                     html.P('Escolha uma doença:'),
                                     dcc.Checklist(
-                                        id='Cities',
+                                        id='Disease',
                                         value=['Homens'],
                                         labelStyle={'display': 'inline-block'},
                                     ),
@@ -768,7 +673,7 @@ class DashCharts:
                                 [
                                     html.P('Escolha um Gênero:'),
                                     dcc.RadioItems(
-                                        id='Country',
+                                        id='Genre',
                                         options=[
                                             {'label': k, 'value': k}
                                             for k in all_options.keys()
@@ -788,15 +693,7 @@ class DashCharts:
                             html.Div(
                                 [dcc.Graph(id='example-graph-1')],
                                 className='six columns',
-                            ),
-                            html.Div(
-                                [dcc.Graph(id='example-graph-2')],
-                                className="six columns",
-                            ),
-                            html.Div(
-                                [dcc.Graph(id='example-graph-3')],
-                                className="six columns",
-                            ),
+                            )
                         ],
                         className="row",
                     ),
@@ -806,95 +703,17 @@ class DashCharts:
         )
 
         @app.callback(
-            dash.dependencies.Output('Cities', 'options'),
-            [dash.dependencies.Input('Country', 'value')],
+            dash.dependencies.Output('Disease', 'options'),
+            [dash.dependencies.Input('Genre', 'value')],
         )
-        def set_cities_options(selected_country):
+        def set_Disease_options(selected_Genre):
             return [
-                {'label': i, 'value': i} for i in all_options[selected_country]
+                {'label': i, 'value': i} for i in all_options[selected_Genre]
             ]
 
-        # @app.callback(
-        #     dash.dependencies.Output('example-graph-1', 'figure'),
-        #     [dash.dependencies.Input('Cities', 'value')],
-        # )
-        # def update_graph_src(selector):
-        #     data = []
-        #     for city in selector:
-        #         data.append(
-        #             {
-        #                 'x': city_data[city]['x'],
-        #                 'y': city_data[city]['y'],
-        #                 'type': 'bar',
-        #                 'name': city,
-        #             }
-        #         )
-        #     figure = {
-        #         'data': data,
-        #         'layout': {
-        #             'title': 'Distribuição por Gênero',
-        #             'xaxis': dict(
-        #                 title='Semana',
-        #                 titlefont=dict(
-        #                     family='Courier New, monospace',
-        #                     size=20,
-        #                     color='#7f7f7f',
-        #                 ),
-        #             ),
-        #             'yaxis': dict(
-        #                 title='',
-        #                 titlefont=dict(
-        #                     family='Helvetica, monospace',
-        #                     size=20,
-        #                     color='#7f7f7f',
-        #                 ),
-        #             ),
-        #         },
-        #     }
-        #     return figure
-
-        # @app.callback(
-        #     dash.dependencies.Output('example-graph-2', 'figure'),
-        #     [dash.dependencies.Input('Cities', 'value')],
-        # )
-        # def update_graph_src(selector):
-        #     data = []
-        #     for city in selector:
-        #         data.append(
-        #             {
-        #                 'x': city_data2[city]['x'],
-        #                 'y': city_data2[city]['y'],
-        #                 'type': 'bar',
-        #                 'name': city,
-        #             }
-        #         )
-        #     figure = {
-        #         'data': data,
-        #         'layout': {
-        #             'title': 'Casos notificados no periodo',
-        #             'xaxis': dict(
-        #                 title='Semana',
-        #                 titlefont=dict(
-        #                     family='Courier New, monospace',
-        #                     size=20,
-        #                     color='#7f7f7f',
-        #                 ),
-        #             ),
-        #             'yaxis': dict(
-        #                 title='Casos',
-        #                 titlefont=dict(
-        #                     family='Helvetica, monospace',
-        #                     size=20,
-        #                     color='#7f7f7f',
-        #                 ),
-        #             ),
-        #         },
-        #     }
-        #     return figure
-
         @app.callback(
-            dash.dependencies.Output('example-graph-3', 'figure'),
-            [dash.dependencies.Input('Cities', 'value')],
+            dash.dependencies.Output('example-graph-1', 'figure'),
+            [dash.dependencies.Input('Disease', 'value')],
         )
         def update_graph_src(selector):
             data = []
@@ -903,16 +722,16 @@ class DashCharts:
                     {
                         'x': city_data[city]['x'],
                         'y': city_data[city]['y'],
-                        'type': 'line',
+                        'type': 'bar',
                         'name': city,
                     }
                 )
             figure = {
                 'data': data,
                 'layout': {
-                    'title': 'Grafico e linhas',
+                    'title': 'Distribuição por Gênero',
                     'xaxis': dict(
-                        title='x Axis',
+                        title='Semana',
                         titlefont=dict(
                             family='Courier New, monospace',
                             size=20,
@@ -920,7 +739,7 @@ class DashCharts:
                         ),
                     ),
                     'yaxis': dict(
-                        title='Casos',
+                        title='',
                         titlefont=dict(
                             family='Helvetica, monospace',
                             size=20,
@@ -929,5 +748,4 @@ class DashCharts:
                     ),
                 },
             }
-
             return figure
