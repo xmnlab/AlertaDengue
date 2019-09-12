@@ -635,7 +635,7 @@ class DashCharts:
          "api/notif_reduced?chart_type=age_gender&diseases=Dengue&state_abv=CE"
         )
         df_diseases = pd.read_csv(
-         'api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE'
+         "api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE"
         )
 
         all_options = {
@@ -646,6 +646,11 @@ class DashCharts:
         data_gender = {
             'Homens': {'x': df_diseases.category, 'y': df_gender.Homem},
             'Mulheres': {'x': df_diseases.category, 'y': df_gender.Mulher},
+        }
+
+        data_age = {
+            'Homens': {'x': df_gender.category, 'y': df_gender.Homem},
+            'Mulheres': {'x': df_gender.category, 'y': df_gender.Mulher},
         }
 
         # Start App
@@ -672,7 +677,7 @@ class DashCharts:
                                 [
                                     html.P('Escolha um Gênero:'),
                                     dcc.RadioItems(
-                                        id='Genre',
+                                        id='Gender',
                                         options=[
                                             {'label': k, 'value': k}
                                             for k in all_options.keys()
@@ -690,10 +695,21 @@ class DashCharts:
                     html.Div(
                         [
                             html.Div(
-                                [dcc.Graph(id='example-graph-1')],
+                                [dcc.Graph(id='graph-gender')],
                                 className='six columns',
                             )
                         ],
+                        style={"height": "15%", "width": "75%"},
+                        className="row",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [dcc.Graph(id='graph-age')],
+                                className='six columns',
+                            )
+                        ],
+                        style={"height": "15%", "width": "75%"},
                         className="row",
                     ),
                 ],
@@ -703,26 +719,26 @@ class DashCharts:
 
         @app.callback(
             dash.dependencies.Output('Disease', 'options'),
-            [dash.dependencies.Input('Genre', 'value')],
+            [dash.dependencies.Input('Gender', 'value')],
         )
-        def set_Disease_options(selected_Genre):
+        def set_Disease_options(selected_Gender):
             return [
-                {'label': i, 'value': i} for i in all_options[selected_Genre]
+                {'label': i, 'value': i} for i in all_options[selected_Gender]
             ]
 
         @app.callback(
-            dash.dependencies.Output('example-graph-1', 'figure'),
+            dash.dependencies.Output('graph-gender', 'figure'),
             [dash.dependencies.Input('Disease', 'value')],
         )
         def update_graph_src(selector):
             data = []
-            for city in selector:
+            for value in selector:
                 data.append(
                     {
-                        'x': data_gender[city]['x'],
-                        'y': data_gender[city]['y'],
+                        'x': data_gender[value]['x'],
+                        'y': data_gender[value]['y'],
                         'type': 'bar',
-                        'name': city,
+                        'name': value,
                     }
                 )
             figure = {
@@ -730,19 +746,60 @@ class DashCharts:
                 'layout': {
                     'title': 'Distribuição por Gênero',
                     'xaxis': dict(
-                        title='Semana',
+                        title='',
                         titlefont=dict(
                             family='Courier New, monospace',
                             size=20,
-                            color='#7f7f7f',
+                            color='#3289CC',
                         ),
                     ),
                     'yaxis': dict(
-                        title='',
+                        title='Casos',
                         titlefont=dict(
                             family='Helvetica, monospace',
                             size=20,
-                            color='#7f7f7f',
+                            color='#3289CC',
+                        ),
+                    ),
+                },
+            }
+            return figure
+
+        @app.callback(
+            dash.dependencies.Output('graph-age', 'figure'),
+            [dash.dependencies.Input('Disease', 'value')]
+        )
+        def update_graph(selector):
+            color = ['rgba(204,204,204,1)']
+            data = []
+            for value in selector:
+                data.append(
+                    {
+                        'x': data_age[value]['x'],
+                        'y': data_age[value]['y'],
+                        'type': 'bar',
+                        'name': value,
+                    }
+                )
+            figure = {
+                'data': data,
+                'marker': {'color': color},
+                'layout': {
+                    'title': 'Distribuição por Idade',
+                    'xaxis': dict(
+                        title='',
+                        titlefont=dict(
+                            family='Courier New, monospace',
+                            size=20,
+                            color='#3289CC',
+                        ),
+                    ),
+                    'yaxis': dict(
+                        title='Casos',
+                        titlefont=dict(
+                            family='Helvetica, monospace',
+                            size=20,
+                            color='#3289CC',
                         ),
                     ),
                 },
