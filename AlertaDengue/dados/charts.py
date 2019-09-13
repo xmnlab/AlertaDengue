@@ -635,7 +635,7 @@ class DashCharts:
          "api/notif_reduced?chart_type=age_gender&diseases=Dengue&state_abv=CE"
         )
         df_diseases = pd.read_csv(
-         "api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE"
+         'api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE'
         )
 
         all_options = {
@@ -649,8 +649,12 @@ class DashCharts:
         }
 
         data_age = {
-            'Homens': {'x': df_gender.category, 'y': df_gender.Homem},
-            'Mulheres': {'x': df_gender.category, 'y': df_gender.Mulher},
+            'Homens': go.Scatter(
+                x=df_gender.category, y=df_gender.Homem, name='Homem'
+            ),
+            'Mulheres': go.Scatter(
+                x=df_gender.category, y=df_gender.Mulher, name='Mulher'
+            ),
         }
 
         # Start App
@@ -730,7 +734,7 @@ class DashCharts:
             dash.dependencies.Output('graph-gender', 'figure'),
             [dash.dependencies.Input('Disease', 'value')],
         )
-        def update_graph_src(selector):
+        def update_graph_gender(selector):
             data = []
             for value in selector:
                 data.append(
@@ -743,34 +747,21 @@ class DashCharts:
                 )
             figure = {
                 'data': data,
-                'layout': {
-                    'title': 'Distribuição por Gênero',
-                    'xaxis': dict(
-                        title='',
-                        titlefont=dict(
-                            family='Courier New, monospace',
-                            size=20,
-                            color='#3289CC',
-                        ),
-                    ),
-                    'yaxis': dict(
-                        title='Casos',
-                        titlefont=dict(
-                            family='Helvetica, monospace',
-                            size=20,
-                            color='#3289CC',
-                        ),
-                    ),
-                },
+                "layout": go.Layout(
+                    title="Distribuição por Gênero",
+                    yaxis={"title": "Casos"},
+                    xaxis={"title": "Disease", "tickangle": 0},
+                    margin={'l': 55, 'b': 70, 't': 50, 'r': 5},
+                    font=dict(family='sans-serif', size=12, color='#000'),
+                ),
             }
             return figure
 
         @app.callback(
             dash.dependencies.Output('graph-age', 'figure'),
-            [dash.dependencies.Input('Disease', 'value')]
+            [dash.dependencies.Input('Disease', 'value')],
         )
-        def update_graph(selector):
-            color = ['rgba(204,204,204,1)']
+        def update_graph_age(selector):
             data = []
             for value in selector:
                 data.append(
@@ -783,25 +774,13 @@ class DashCharts:
                 )
             figure = {
                 'data': data,
-                'marker': {'color': color},
-                'layout': {
-                    'title': 'Distribuição por Idade',
-                    'xaxis': dict(
-                        title='',
-                        titlefont=dict(
-                            family='Courier New, monospace',
-                            size=20,
-                            color='#3289CC',
-                        ),
-                    ),
-                    'yaxis': dict(
-                        title='Casos',
-                        titlefont=dict(
-                            family='Helvetica, monospace',
-                            size=20,
-                            color='#3289CC',
-                        ),
-                    ),
-                },
+                "layout": go.Layout(
+                    title="Distribuição por Idade",
+                    yaxis={"title": "Casos"},
+                    xaxis={"title": "Idade", "tickangle": 45},
+                    barmode='stack',
+                    margin={'l': 55, 'b': 70, 't': 50, 'r': 5},
+                    font=dict(family='sans-serif', size=12, color='#000'),
+                ),
             }
             return figure
