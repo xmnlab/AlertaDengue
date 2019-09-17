@@ -1,39 +1,46 @@
-from collections import defaultdict, OrderedDict
 import datetime
-import fiona
-import geojson
 import json
 import locale
-import numpy as np
 import os
 import random
-
-from django.apps import apps
-from django.utils.translation import gettext
-from django.shortcuts import redirect
-from django.views.generic.base import TemplateView, View
-from django.contrib import messages
-from django.conf import settings
-from django.http import HttpResponse
+from collections import OrderedDict, defaultdict
 from time import mktime
 
+import fiona
+import geojson
+import numpy as np
+from django.apps import apps
+from django.conf import settings
+from django.contrib import messages
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.utils.translation import gettext
+from django.views.generic.base import TemplateView, View
+# local apps
+from gis.geotiff import convert_from_shapefile
 
 # local
-from . import dbdata, models as M
+from . import dbdata
+from . import models as M
+from .charts import (
+    Dash_Epy,
+    DashCharts,
+    HomeCharts,
+    ReportCityCharts,
+    ReportStateCharts
+)
 from .dbdata import (
-    Forecast,
-    MRJ_GEOCODE,
-    CID10,
-    ReportCity,
-    ReportState,
     ALERT_COLOR,
+    CID10,
+    MRJ_GEOCODE,
     STATE_NAME,
+    Forecast,
+    ReportCity,
+    ReportState
 )
 from .episem import episem, episem2date
 from .maps import get_city_info
 from .models import City, RegionalHealth
-from .charts import ReportCityCharts, ReportStateCharts, HomeCharts, DashCharts
-from gis.geotiff import convert_from_shapefile
 
 DBF = apps.get_model('dbf', 'DBF')
 
@@ -63,7 +70,7 @@ def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(
-        int(value[i: i + lv // 3], 16) for i in range(0, lv, lv // 3)
+        int(value[i : i + lv // 3], 16) for i in range(0, lv, lv // 3)
     )
 
 
@@ -863,6 +870,8 @@ class AlertaStateView(TemplateView):
         else:
             cases_series_last_12 = {}
 
+        DashCharts.create_dash_chart_uf()
+
         context.update(
             {
                 'state_abv': context['state'],
@@ -877,7 +886,8 @@ class AlertaStateView(TemplateView):
                 'case_series': cases_series_last_12,
                 'disease_label': context['disease'].title(),
                 'last_update': last_update,
-                'dash_chart_uf': DashCharts.create_dash_chart_uf(),
+                # 'dash_chart_uf': DashCharts.create_dash_chart_uf(),
+                "dash_epy_uf": Dash_Epy.create_dash_epyweek_uf(),
             }
         )
         return context

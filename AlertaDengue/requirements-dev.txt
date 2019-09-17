@@ -6,4 +6,6 @@ PILLOW
 pre_commit
 black
 flake8
+git+git://github.com/timothycrosley/isort.git@18ad293fc9d1852776afe35015a932b68d26fb14
+seed-isort-config
 # django-extensions

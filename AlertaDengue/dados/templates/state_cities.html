@@ -1,164 +1,56 @@
 {% extends 'base.html' %}
+
 {% load i18n %}
 {% load static %}
 {% load lookup %}
+{% load plotly_dash %}
 
 {% block extra_head %}
-    {% load leaflet_tags %}
-    {% load alert_state %}
-    {% leaflet_js %}
-    {% leaflet_css %}
-    {% leaflet_js plugins="ALL" %}
-    {%load plotly_dash%}
+    
+  <meta property="og:image"
+        content="http://info.dengue.mat.br/static/img/screenshot.png"/>
+  <meta property="og:image:secure_url"
+        content="https://info.dengue.mat.br/static/img/screenshot.png"/>
+
+  <link href="/static/css/dash-app-custom.css" rel="stylesheet" type="text/css">
+
+  <script src="/static/js/Autolinker.min.js" type="text/javascript"></script>
+  <script src="/static/libs/jquery/jquery.sparkline.min.js"
+          type="text/javascript"></script>
+  
+  <script src="/static/js/infodengue.js"
+          type="text/javascript"></script>
+
+  <style type="text/css">
+      #main {
+          width: 100%;
+          height: 400px;
+      }
+
+  </style>
+
+  {% plotly_header %}
+
 {% endblock %}
 {% block title %}{{state}}{% endblock %}
 
-{% block content %}     
+{% block content %}
 
- <div class="row">
-        <small>{% blocktrans %}Última atualização{% endblocktrans %}: {{last_update}}</small>
-        <br/> &nbsp;
+<div class="container-fluid">
+  <!-- chart-plot:begin -->
+  <div class="row">
+    <small>{% blocktrans %}Última atualização{% endblocktrans %}: {{last_update}}</small>
+    <br/> &nbsp;
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class='dash-app-area'>
+        {% plotly_app name="dash_app_state" %}
+      </div>
     </div>
-    <div class="row">
-        <div class="col-sm-5">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="chart-body">
-
-
-
-                      </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card" style="z-index:1001; position: relative;">
-                            <select id="cities"
-                                    class="selectpicker"
-                                    data-live-search="true"
-                                    data-title="{% blocktrans %}Selecione municipio(s){% endblocktrans %}"
-                                    data-actions-box="true"
-                                    data-selected-text-format="static"
-                                    multiple
-                            >
-                                {% for k in mun_dict_ordered %}
-                                <option value="{{k}}" selected="selected"
-                                  >{{mun_dict_ordered|lookup:k}}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="button"
-                                   value="{% blocktrans %}Aplicar seleção{% endblocktrans %}"
-                                   onclick="apply_cities_selection();"
-                                   title="{% blocktrans %}Após alterar a seleção das cidades do filtro, clique no botão <Aplicar Seleção>.{% endblocktrans %}"
-                            />
-
-                    </div>
-                    <div class="chart-stage">
-                        {% map_chart %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-7">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-body content-inline">
-                          <strong>{% blocktrans %}Descrição de filtro{% endblocktrans %}:</strong>
-                          <span id="filter-display"></span>
-                      </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-body">
-                        {%plotly_app name="dash_app_UF"%}
-
-                      </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-body">
-
-
-                      </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-body">
-
-
-                      </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div>&nbsp;</div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-body">
-                          {%plotly_app name="dash_app_UF"%}
-
-                      </div>
-                    </div>
-                </div>
-            </div>
-                
-            </div>
-        </div>
-    </div>
-    <div>&nbsp;</div>
-    <div>
-        <div>
-            <div>
-              <div>
-{% comment %} 
-                          {%load plotly_dash%}
-                          {%plotly_app name="SimpleExample2"%} {% endcomment %}
-              </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Start here-->
-<div class="modal fade bs-example-modal-sm" id="pleaseWaitWindow" tabindex="-1"
-    role="dialog" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">
-                    <span class="glyphicon glyphicon-time">
-                    </span> {% blocktrans %}Por favor, aguarde.{% endblocktrans %}
-                 </h4>
-            </div>
-            <div class="modal-body">
-                <div class="progress">
-                    <div class="progress-bar progress-bar-info
-                    progress-bar-striped active"
-                    style="width: 100%">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 <!-- Modal ends Here -->
 {% endblock %}
+
+{% plotly_footer %}

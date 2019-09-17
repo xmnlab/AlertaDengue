@@ -1,0 +1,15 @@
+.dash-app-area {
+    height:100%!important;
+    width: 100%;
+}
+
+.dash-app-area div {
+    height:100%!important;
+    position: absolute!important;
+    width: 100%;
+}
+
+.dash-app-area div iframe{
+    position: relative!important;
+    width: 100%;
+}

@@ -1,18 +1,16 @@
 from datetime import timedelta
 from time import mktime
 
-import plotly.graph_objs as go
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
 import pandas as pd
+import plotly.graph_objs as go
+from django_plotly_dash import DjangoDash
 from plotly.subplots import make_subplots
 
 # local
 from .dbdata import get_series_by_UF
-
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-
-from django_plotly_dash import DjangoDash
 
 
 class ReportCityCharts:
@@ -632,10 +630,12 @@ class DashCharts:
 
         # Load data https://info.dengue.mat.br/...
         df_gender = pd.read_csv(
-         "api/notif_reduced?chart_type=age_gender&diseases=Dengue&state_abv=CE"
+            'http://127.0.0.1:8000/api/notif_reduced?'
+            'chart_type=age_gender&diseases=Dengue&state_abv=CE'
         )
         df_diseases = pd.read_csv(
-         'api/notif_reduced?chart_type=disease&diseases=Dengue&state_abv=CE'
+            'http://127.0.0.1:8000/api/notif_reduced?'
+            'chart_type=disease&diseases=Dengue&state_abv=CE'
         )
 
         all_options = {
@@ -658,7 +658,7 @@ class DashCharts:
         }
 
         # Start App
-        app = DjangoDash('dash_app_UF')
+        app = DjangoDash('dash_app_state')
 
         app.layout = html.Div(
             html.Div(
@@ -673,9 +673,7 @@ class DashCharts:
                                         value=['Homens'],
                                         labelStyle={'display': 'inline-block'},
                                     ),
-                                ],
-                                className='six columns',
-                                style={'margin-top': '10'},
+                                ]
                             ),
                             html.Div(
                                 [
@@ -689,43 +687,50 @@ class DashCharts:
                                         value='All',
                                         labelStyle={'display': 'inline-block'},
                                     ),
-                                ],
-                                className='six columns',
-                                style={'margin-top': '10'},
+                                ]
                             ),
-                        ],
-                        className="row",
+                        ]
                     ),
                     html.Div(
                         [
                             html.Div(
-                                [dcc.Graph(id='graph-gender')],
-                                className='six columns',
+                                [
+                                    dcc.Graph(
+                                        id='graph-gender',
+                                        style={
+                                            "height": "200px",
+                                            "width": "50%",
+                                        },
+                                    )
+                                ]
                             )
-                        ],
-                        style={"height": "15%", "width": "75%"},
-                        className="row",
+                        ]
                     ),
                     html.Div(
                         [
                             html.Div(
-                                [dcc.Graph(id='graph-age')],
-                                className='six columns',
+                                [
+                                    dcc.Graph(
+                                        id='graph-age',
+                                        style={
+                                            "height": "200px",
+                                            "width": "50%",
+                                        },
+                                    )
+                                ]
                             )
-                        ],
-                        style={"height": "15%", "width": "75%"},
-                        className="row",
+                        ]
                     ),
-                ],
-                className='ten columns offset-by-one',
-            )
+                ]
+            ),
+            className='graph-app',
         )
 
         @app.callback(
             dash.dependencies.Output('Disease', 'options'),
             [dash.dependencies.Input('Gender', 'value')],
         )
-        def set_Disease_options(selected_Gender):
+        def set_disease_options(selected_Gender):
             return [
                 {'label': i, 'value': i} for i in all_options[selected_Gender]
             ]
@@ -784,3 +789,86 @@ class DashCharts:
                 ),
             }
             return figure
+
+
+class Dash_Epy:
+    @classmethod
+    def create_dash_epyweek_uf(cls):
+
+        df_epyears = pd.read_csv(
+            'http://127.0.0.1:8000/api/notif_reduced?'
+            'chart_type=epiyears&diseases=Dengue&state_abv=CE'
+        )
+
+        trace0 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2010'], name='2010'
+        )
+        trace1 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2011'], name='2011'
+        )
+        trace2 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2012'], name='2012'
+        )
+        trace3 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2013'], name='2013'
+        )
+        trace4 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2014'], name='2014'
+        )
+        trace5 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2015'], name='2015'
+        )
+        trace6 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2016'], name='2016'
+        )
+        trace7 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2017'], name='2017'
+        )
+        trace8 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2018'], name='2018'
+        )
+        trace9 = go.Scatter(
+            x=df_epyears['se_notif'], y=df_epyears['2019'], name='2019'
+        )
+
+        external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+        # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+        app = DjangoDash('app_epy', external_stylesheets=external_stylesheets)
+
+        app.layout = html.Div(
+            style={'height': '290vh'},
+            children=[
+                dcc.Graph(
+                    id='graph_epy',
+                    figure={
+                        'data': [
+                            trace0,
+                            trace1,
+                            trace2,
+                            trace3,
+                            trace4,
+                            trace5,
+                            trace6,
+                            trace7,
+                            trace8,
+                            trace9,
+                        ],
+                        "layout": go.Layout(
+                            title="Casos por semanas epidemiologicas",
+                            yaxis={"title": "Casos"},
+                            xaxis={"title": "Semana"},
+                            showlegend=False,
+                            # margin={'l': 35, 'b': 70, 't': 50, 'r': 5},
+                            font=dict(
+                                family='sans-serif', size=12, color='#000'
+                            ),
+                        ),
+                    },
+                    style={'height': 'inherit'},
+                )
+            ],
+        )
+
+        # return figure
