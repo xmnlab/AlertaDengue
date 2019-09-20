@@ -1,12 +1,12 @@
-from django.http import HttpResponse
-from django.views.generic.base import View
+import json
 from datetime import datetime
 
-# local
-from .db import NotificationQueries, STATE_NAME, AlertCity, MRJ_GEOCODE
 from dados.episem import episem
+from django.http import HttpResponse
+from django.views.generic.base import View
 
-import json
+# local
+from .db import MRJ_GEOCODE, STATE_NAME, AlertCity, NotificationQueries
 
 
 class _GetMethod:
@@ -164,6 +164,7 @@ class AlertCityView(View, _GetMethod):
                     ew_end=eyw_end,
                 )
                 # change all keys to lower case
+
                 df.drop(
                     columns=['municipio_geocodigo', 'municipio_nome'],
                     inplace=True,

@@ -638,8 +638,8 @@ class DashCharts:
             'chart_type=disease&diseases=Dengue&state_abv=CE'
         )
 
-        all_options = {
-            'Desease': ['Chikungunya', 'Dengue', 'Zika'],
+        todas_options = {
+            'disease': ['Chikungunya', 'Dengue', 'Zika'],
             'Gênero': [u'Homens', 'Mulheres'],
         }
 
@@ -658,7 +658,12 @@ class DashCharts:
         }
 
         # Start App
-        app = DjangoDash('dash_app_state')
+
+        external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+        app = DjangoDash(
+            'dash_app_state', external_stylesheets=external_stylesheets
+        )
 
         app.layout = html.Div(
             html.Div(
@@ -673,7 +678,8 @@ class DashCharts:
                                         value=['Homens'],
                                         labelStyle={'display': 'inline-block'},
                                     ),
-                                ]
+                                ],
+                                className="six columns",
                             ),
                             html.Div(
                                 [
@@ -682,12 +688,13 @@ class DashCharts:
                                         id='Gender',
                                         options=[
                                             {'label': k, 'value': k}
-                                            for k in all_options.keys()
+                                            for k in todas_options.keys()
                                         ],
-                                        value='All',
+                                        value='TDA',
                                         labelStyle={'display': 'inline-block'},
                                     ),
-                                ]
+                                ],
+                                className="six columns",
                             ),
                         ]
                     ),
@@ -695,14 +702,16 @@ class DashCharts:
                         [
                             html.Div(
                                 [
+                                    html.H3('Column 2'),
                                     dcc.Graph(
                                         id='graph-gender',
                                         style={
-                                            "height": "200px",
-                                            "width": "50%",
+                                            "height": "300px",
+                                            "width": "100%",
                                         },
-                                    )
-                                ]
+                                    ),
+                                ],
+                                className="six columns",
                             )
                         ]
                     ),
@@ -710,18 +719,22 @@ class DashCharts:
                         [
                             html.Div(
                                 [
+                                    html.H3('Column 3'),
                                     dcc.Graph(
                                         id='graph-age',
                                         style={
-                                            "height": "200px",
-                                            "width": "50%",
+                                            "height": "300px",
+                                            "width": "100%",
                                         },
-                                    )
-                                ]
+                                    ),
+                                ],
+                                className="six columns",
                             )
-                        ]
+                        ],
+                        className="six columns",
                     ),
-                ]
+                ],
+                className="row",
             ),
             className='graph-app',
         )
@@ -732,7 +745,8 @@ class DashCharts:
         )
         def set_disease_options(selected_Gender):
             return [
-                {'label': i, 'value': i} for i in all_options[selected_Gender]
+                {'label': i, 'value': i}
+                for i in todas_options[selected_Gender]
             ]
 
         @app.callback(
@@ -784,21 +798,25 @@ class DashCharts:
                     yaxis={"title": "Casos"},
                     xaxis={"title": "Idade", "tickangle": 45},
                     barmode='stack',
-                    margin={'l': 55, 'b': 70, 't': 50, 'r': 5},
+                    # margin={'l': 55, 'b': 70, 't': 50, 'r': 5},
                     font=dict(family='sans-serif', size=12, color='#000'),
                 ),
             }
             return figure
 
-
-class Dash_Epy:
-    @classmethod
-    def create_dash_epyweek_uf(cls):
-
         df_epyears = pd.read_csv(
             'http://127.0.0.1:8000/api/notif_reduced?'
             'chart_type=epiyears&diseases=Dengue&state_abv=CE'
         )
+
+        # depy_epyears = pd.read_csv(
+        #     'http://127.0.0.1:8000/api/notif_reduced?'
+        #     'chart_type=period&diseases=Dengue&state_abv=CE'
+        # )
+
+        # trace_years = go.Scatter(
+        #     x=depy_epyears['category'], y=depy_epyears['casos'], name='casos'
+        # )
 
         trace0 = go.Scatter(
             x=df_epyears['se_notif'], y=df_epyears['2010'], name='2010'
@@ -838,8 +856,9 @@ class Dash_Epy:
         app = DjangoDash('app_epy', external_stylesheets=external_stylesheets)
 
         app.layout = html.Div(
-            style={'height': '290vh'},
+            style={'height': '400px'},
             children=[
+                html.H3('Column 4'),
                 dcc.Graph(
                     id='graph_epy',
                     figure={
@@ -867,8 +886,34 @@ class Dash_Epy:
                         ),
                     },
                     style={'height': 'inherit'},
-                )
+                ),
             ],
         )
 
         # return figure
+
+
+class Dash_Epy:
+    @classmethod
+    def create_dash_epyweek_uf(cls):
+        df = pd.read_csv(
+            '/home/esloch//work_lab/projects_lab/'
+            'Datas_Sicence_dados/2011_us_ag_exports.csv'
+        )
+
+        fig = go.Figure(
+            data=go.Choropleth(
+                locations=df['code'],  # Spatial coordinates
+                z=df['total exports'].astype(float),  # Data to be color-coded
+                locationmode='USA-states',  # set of locations
+                colorscale='hot',
+                colorbar_title="Nivel de Alerta",
+            )
+        )
+
+        fig.update_layout(
+            title_text='Brasil Alerta Dengue by State',
+            geo_scope='usa',  # limite map scope to USA
+        )
+
+        return fig.to_html

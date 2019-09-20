@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.translation import gettext
 from django.views.generic.base import TemplateView, View
+
 # local apps
 from gis.geotiff import convert_from_shapefile
 
@@ -27,7 +28,7 @@ from .charts import (
     DashCharts,
     HomeCharts,
     ReportCityCharts,
-    ReportStateCharts
+    ReportStateCharts,
 )
 from .dbdata import (
     ALERT_COLOR,
@@ -36,7 +37,7 @@ from .dbdata import (
     STATE_NAME,
     Forecast,
     ReportCity,
-    ReportState
+    ReportState,
 )
 from .episem import episem, episem2date
 from .maps import get_city_info
@@ -870,8 +871,6 @@ class AlertaStateView(TemplateView):
         else:
             cases_series_last_12 = {}
 
-        DashCharts.create_dash_chart_uf()
-
         context.update(
             {
                 'state_abv': context['state'],
@@ -886,8 +885,8 @@ class AlertaStateView(TemplateView):
                 'case_series': cases_series_last_12,
                 'disease_label': context['disease'].title(),
                 'last_update': last_update,
-                # 'dash_chart_uf': DashCharts.create_dash_chart_uf(),
-                "dash_epy_uf": Dash_Epy.create_dash_epyweek_uf(),
+                'dash_chart_uf': DashCharts.create_dash_chart_uf(),
+                'dash_epy_uf': Dash_Epy.create_dash_epyweek_uf(),
             }
         )
         return context

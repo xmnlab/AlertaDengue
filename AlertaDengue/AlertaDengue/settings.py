@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from decouple import config, Csv
+
+from decouple import Csv, config
 from dj_database_url import parse as db_url
 
 
@@ -62,7 +63,9 @@ INSTALLED_APPS = (
     'api',
     'manager.router',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'werkzeug_debugger_runserver',
 )
+INSTALLED_APPS += ('django_extensions',)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
@@ -274,8 +277,6 @@ BOOTSTRAP4 = {
     }
 }
 
-
-import os
 
 LOGGING = {
     'version': 1,

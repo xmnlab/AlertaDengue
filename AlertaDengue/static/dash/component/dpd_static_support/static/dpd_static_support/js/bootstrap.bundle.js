@@ -1,0 +1,1 @@
+/home/work_lab/miniconda/envs/ADengue-373/lib/python3.6/site-packages/dpd_static_support/static/dpd_static_support/js/bootstrap.bundle.js
