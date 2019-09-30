@@ -1,29 +1,26 @@
+import os
 from datetime import datetime
 from glob import glob
 
+import geopandas as gpd
+import numpy as np
+import pyproj
+import sh
+
 # local
-from dados.dbdata import (
-    STATE_INITIAL,
-    db_engine,
-    get_cities,
-    NotificationResume as notif,
-)
+from dados.dbdata import STATE_NAME
+from dados.dbdata import NotificationResume as notif
+from dados.dbdata import db_engine, get_cities
 
 from .geodf import extract_boundaries
 from .settings import (
-    SHAPEFILE_PATH,
-    RASTER_PATH,
     MAPFILE_PATH,
     MAPSERVER_LOG_PATH,
     MAPSERVER_URL,
     RASTER_METEROLOGICAL_DATA_RANGE,
+    RASTER_PATH,
+    SHAPEFILE_PATH,
 )
-
-import geopandas as gpd
-import numpy as np
-import os
-import pyproj
-import sh
 
 
 def stringfy_boundaries(bounds: np.array, sep=' '):
@@ -285,7 +282,7 @@ class MapFileAlert(MapFile):
         cities = {}
         alerts = {}
 
-        for state_name in STATE_INITIAL.values():
+        for state_name in STATE_NAME.values():
             with db_engine.connect() as conn:
                 sql = sql_template % state_name
                 result = conn.execute(sql).fetchall()

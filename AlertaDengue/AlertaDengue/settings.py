@@ -65,7 +65,9 @@ INSTALLED_APPS = (
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'werkzeug_debugger_runserver',
 )
-INSTALLED_APPS += ('django_extensions',)
+
+if DEBUG:
+    INSTALLED_APPS += ('django_extensions',)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
@@ -208,7 +210,7 @@ APPEND_SLASH = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-CURRENT_DIR = os.path.join(os.path.dirname(__file__), '..')
+CURRENT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # up one level from settings.py
 STATIC_ROOT = os.path.join(CURRENT_DIR, 'static_files')

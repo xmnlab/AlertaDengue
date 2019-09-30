@@ -3,17 +3,18 @@ Este módulo contem funções para interagir com o banco principal do projeto
  Alertadengue.
 
 """
-from sqlalchemy import create_engine
-from django.core.cache import cache
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-# local
-from .episem import episem, episem2date
+import numpy as np
+import pandas as pd
+from django.core.cache import cache
+from sqlalchemy import create_engine
+
 from . import settings
 
-import pandas as pd
-import numpy as np
+# local
+from .episem import episem, episem2date
 
 # rio de janeiro city geocode
 MRJ_GEOCODE = 3304557
@@ -28,11 +29,16 @@ STATE_NAME = {
     'RJ': 'Rio de Janeiro',
 }
 
+ALL_STATE_NAMES = STATE_NAME.copy()
+# TODO: add missing states here
+ALL_STATE_NAMES.update({'SP': 'São Paulo'})
+
 ALERT_COLOR = {1: 'verde', 2: 'amarelo', 3: 'laranja', 4: 'vermelho'}
 
 ALERT_CODE = dict(zip(ALERT_COLOR.values(), ALERT_COLOR.keys()))
 
-STATE_INITIAL = dict(zip(STATE_NAME.keys(), STATE_NAME.values()))
+STATE_INITIAL = dict(zip(STATE_NAME.values(), STATE_NAME.keys()))
+ALL_STATE_INITIAL = dict(zip(ALL_STATE_NAMES.values(), ALL_STATE_NAMES.keys()))
 
 db_engine = create_engine(
     "postgresql://{}:{}@{}/{}".format(
