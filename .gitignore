@@ -37,3 +37,8 @@ Dockerfile-dev
 /build/
 /tiffs/
 .vscode
+
+.env_staging
+
+/docker/*
+/.mypy_cache/*

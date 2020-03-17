@@ -3,7 +3,7 @@ jupyter_contrib_nbextensions
 # eralchemy
 matplotlib
 PILLOW
-pre_commit
+pre-commit
 black
 flake8
 # django-extensions
