@@ -40,3 +40,6 @@ Dockerfile-dev
 
 # env
 .env*
+
+/docker/*
+/.mypy_cache/*

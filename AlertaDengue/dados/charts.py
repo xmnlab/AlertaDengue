@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import timedelta
 from time import mktime
 import json
@@ -379,16 +380,34 @@ class ReportCityCharts:
 
 
 class ReportStateCharts:
+    """Charts used by Report State."""
+
     @classmethod
-    def create_tweet_chart(cls, df: pd.DataFrame, year_week, disease: str):
+    def create_tweet_chart(
+        cls, df: pd.DataFrame, year_week: int, disease: str
+    ) -> str:
         """
-        :param df:
-        :param year_week:
-        :param disease:
-        :return:
+        Create chart with tweet information.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Dataframe with tweet information
+        year_week : int
+            Year and week desired filter e.g.: 202002
+        disease : str, {'dengue', 'chik', 'zika'}
+            Disease name
+
+        Returns
+        -------
+        str
+            HTML with Plotly chart.
         """
+        df = deepcopy(df)
         ks_cases = ['casos notif. {}'.format(disease)]
 
+        # TODO: check this code
+        df.index.name = 'SE'
         df_tweet = df.reset_index()[['SE', 'tweets'] + ks_cases]
         df_tweet = df_tweet[df_tweet.SE >= year_week - 200]
 
