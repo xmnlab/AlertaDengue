@@ -414,7 +414,7 @@ class ReportStateCharts:
         df_tweet.rename(columns={'tweets': 'menções'}, inplace=True)
 
         df_grp = (
-            df_tweet.groupby(df.index)[['menções'] + ks_cases]
+            df_tweet.groupby(df_tweet.SE)[['menções'] + ks_cases]
             .sum()
             .reset_index()
         )
