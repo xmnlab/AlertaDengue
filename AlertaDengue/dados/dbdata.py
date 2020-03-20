@@ -57,7 +57,7 @@ PSQL_URI = "postgresql://{}:{}@{}:{}/{}".format(
 )
 
 db_engine = create_engine(PSQL_URI)
-con = ibis.postgres.connect(PSQL_URI)
+con = ibis.postgres.connect(url=PSQL_URI)
 
 
 # Ibis utils functions

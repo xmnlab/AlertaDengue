@@ -407,7 +407,7 @@ class ReportStateCharts:
         ks_cases = ['casos notif. {}'.format(disease)]
 
         # TODO: check this code
-        df.index.name = 'SE'
+
         df_tweet = df.reset_index()[['SE', 'tweets'] + ks_cases]
         df_tweet = df_tweet[df_tweet.SE >= year_week - 200]
 
