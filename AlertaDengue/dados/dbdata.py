@@ -1537,7 +1537,7 @@ class ReportState:
             ]
         )
 
-        return joined_expr[proj].execute()
+        return joined_expr[proj].sort_by(['SE', 'geocode']).execute()
 
     @classmethod
     def _format_data(cls, df: pd.DataFrame) -> pd.DataFrame:
