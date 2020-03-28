@@ -43,9 +43,12 @@ COPY --chown=deploy \
   README.md \
   HISTORY.md \
   requirements.txt \
+  example_env_file \
   /srv/deploy/
 
 WORKDIR /srv/deploy/AlertaDengue
+
+RUN cp /srv/deploy/example_env_file /srv/deploy/.env_staging
 
 # install libs for testing
 RUN conda install -n base --yes \

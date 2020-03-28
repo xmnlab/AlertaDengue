@@ -107,7 +107,7 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     cmdclass=cmdclass,
-    scripts=['manage.py'],
+    scripts=['AlertaDengue/manage.py'],
     include_package_data=True,
     # test_suite='tests',
     # tests_require=test_requirements

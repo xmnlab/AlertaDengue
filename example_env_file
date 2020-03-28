@@ -1,14 +1,6 @@
-ALLOWED_HOSTS=alerta.dengue.mat.br,info.dengue.mat.br
-SECRET_KEY=my-secret-key
-DEBUG=True
-PSQL_PASSWORD=super-secret-password
-DOCKER_HOST_MEDIA_ROOT=/home/user/infodengue/docker_shared_files
-
-# ---
-
 ALLOWED_HOSTS=alerta.dengue.mat.br,info.dengue.mat.br,*
 
-ADMINS=ivan:ivan.ogasawara@gmail.com
+ADMINS=test:test@test.com
 
 SECRET_KEY=my-secret-key
 
@@ -18,9 +10,7 @@ EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_FROM_ADDRESS=no-reply@info.dengue.mat.br
 INFODENGUE_TEAM_EMAIL=infodengue@info.dengue.mat.br
 
-EMAIL_CONFIG=smtp.gmail.com,587,projetoinfodengue@gmail.com,
-
-EMAIL_CONFIG=smtp.gmail.com,587,projetoinfodengue@gmail.com,fFbnwE6DJrTyJfXv
+EMAIL_CONFIG=smtp.gmail.com,587,test@gmail.com,password
 
 CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672
 CELERY_TASK_ALWAYS_EAGER=True
@@ -29,10 +19,10 @@ PSQL_HOST=localhost
 PSQL_DB=dengue
 PSQL_DBF=infodengue
 PSQL_USER=dengueadmin
-PSQL_PASSWORD=aldengue
+PSQL_PASSWORD=dbdemo
 PSQL_PORT=25432
 POSTGRES_USER=dengueadmin
-POSTGRES_PASSWORD=aldengue
+POSTGRES_PASSWORD=dbdemo
 
 MEDIA_ROOT=/MEDIA_ROOT
 IMPORTED_FILES_DIR=/IMPORTED_FILES
@@ -49,9 +39,8 @@ MEMCACHED_HOST=127.0.0.1
 MEMCACHED_PORT=11211
 
 STAGING_DATA_DIR=/home/xmn/dev/fgv_fiocruz/tmp/staging_data_dir
-DATABASE_URL=postgres://dengueadmin:aldengue@localhost:5432/infodengue
+DATABASE_URL=postgres://dengueadmin:dbdemo@localhost:25432/infodengue
 
-MAPSERVER_URL=http://172.17.0.2:80
+MAPSERVER_URL=staging_mapserver:80
 MAPFILE_PATH=/var/www/mapserver/mapfiles
 RASTER_PATH=/var/www/mapserver/tiffs
-MAPBOX_TOKEN=pk.eyJ1IjoieG1ubGFiIiwiYSI6ImNqZHhrNmcxbDBuZnUyd28xYTg5emVoeTcifQ.9CMl24WjXQ4iThxYYoc3XA
