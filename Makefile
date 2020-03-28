@@ -2,7 +2,7 @@
 # note: --env-file requires docker-compose>=1.25
 #       ref: https://github.com/docker/compose/pull/6535
 compose_cmd = docker-compose -p infodengue -f docker/docker-compose.yml --env-file .env
-staging_compose_cmd = docker-compose -p infodengue_staging -f docker/staging-compose.yml --env-file .env_staging
+staging_compose_cmd = docker-compose -f docker/staging-compose.yml --env-file .env_staging
 
 
 build:
@@ -35,9 +35,9 @@ stop_staging:
 	$(staging_compose_cmd) stop
 
 generate_maps_staging: build
-	$(staging_compose_cmd) run --rm web python3 manage.py sync_geofiles
-	$(staging_compose_cmd) run --rm web python3 manage.py generate_meteorological_raster_cities
-	$(staging_compose_cmd) run --rm web python3 manage.py generate_mapfiles
+	$(staging_compose_cmd) run --rm staging_web python3 manage.py sync_geofiles
+	$(staging_compose_cmd) run --rm staging_web python3 manage.py generate_meteorological_raster_cities
+	$(staging_compose_cmd) run --rm staging_web python3 manage.py generate_mapfiles
 
 clean_staging:
 	$(staging_compose_cmd) stop
@@ -55,3 +55,13 @@ remove_stoped_containers:
 
 remove_untagged_images:
 	docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+
+flake8_web:
+	$(staging_compose_cmd) run --rm --no-deps staging_web flake8
+
+test_web:
+	$(staging_compose_cmd) run --no-deps staging_web bash ../docker/test.sh dados
+	$(staging_compose_cmd) run --no-deps staging_web bash ../docker/test.sh dbf
+	$(staging_compose_cmd) run --no-deps staging_web bash ../docker/test.sh gis
+	$(staging_compose_cmd) run --no-deps staging_web bash ../docker/test.sh api
+	$(staging_compose_cmd) run --no-deps staging_web bash ../docker/test.sh forecast

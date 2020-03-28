@@ -12,14 +12,31 @@ test: &test
   steps:
     - checkout
     - run:
+      name: Install GIT LFS and clone Data repo
+      command: |
+        apt-get update
+        apt-get install -y git-lfs
+        git lfs install
+        git-lfs clone https://github.com/AlertaDengue/Data.git ./docker/dev_dumps
+    - run:
+      name: Prepare data file
+      command: |
+        mv docker/dev_dumps/alertademo_data.sql docker/dev/_dumps/latest_dengue.sql
+        cat patch/notificacao.sql >> docker/dev_dumps/latest_dengue.sql
+        gunzip -c ./docker/dev_dumps/latest_dengue.sql.gz | cat ./docker/dev_dumps/latest_dengue.sql
+    - run:
         name: Update Conda
         command: |
           conda config --set always_yes True
           conda config --add channels conda-forge
           conda install -n base conda
           conda update --all
-          conda env create -f environment-${PYTHON_VERSION}.yml
-          conda install python=${PYTHON_VERSION} -n alertadengue --file requirements-dev.txt
+          conda install docker-compose
+          # conda env create -f environment-${PYTHON_VERSION}.yml
+          # conda install python=${PYTHON_VERSION} -n alertadengue --file requirements-dev.txt
+    -run:
+      name: make deploy_staging
+      command: make deploy_staging
     - run:
         name: Show the exact environment used
         command: |

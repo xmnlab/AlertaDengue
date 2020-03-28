@@ -7,4 +7,5 @@ pre-commit
 black
 flake8
 pytest
+pytest-django
 # django-extensions
