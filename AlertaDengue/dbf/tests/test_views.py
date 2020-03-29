@@ -11,8 +11,8 @@ except ModuleNotFoundError:
 from datetime import date
 
 # local
-from ..models import DBF, DBFChunkedUpload
-from ..forms import DBFForm
+from dbf.models import DBF, DBFChunkedUpload
+from dbf.forms import DBFForm
 
 import os
 

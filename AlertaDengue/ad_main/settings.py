@@ -84,9 +84,9 @@ MIDDLEWARE_CLASSES = (
 # django 2
 MIDDLEWARE = MIDDLEWARE_CLASSES
 
-ROOT_URLCONF = 'AlertaDengue.urls'
+ROOT_URLCONF = 'ad_main.urls'
 
-WSGI_APPLICATION = 'AlertaDengue.wsgi.application'
+WSGI_APPLICATION = 'ad_main.wsgi.application'
 
 TEMPLATES = [
     {

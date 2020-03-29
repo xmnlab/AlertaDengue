@@ -35,16 +35,7 @@ RUN mkdir /srv/deploy/logs
 COPY --chown=deploy docker  /srv/deploy/docker
 COPY --chown=deploy AlertaDengue  /srv/deploy/AlertaDengue
 # files
-COPY --chown=deploy \
-  pyproject.toml \
-  setup.cfg \
-  setup.py \
-  .pre-commit-config.yaml\
-  README.md \
-  HISTORY.md \
-  requirements.txt \
-  example_env_file \
-  /srv/deploy/
+COPY --chown=deploy pyproject.toml setup.cfg setup.py .pre-commit-config.yaml README.md HISTORY.md requirements.txt example_env_file /srv/deploy/
 
 WORKDIR /srv/deploy/AlertaDengue
 
